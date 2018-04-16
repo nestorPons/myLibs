@@ -17,17 +17,20 @@ class Conn{
         $logs = ['data','usuarios'], 
         $error = false , 
 		$users,
+        $conf, 
         $conn;
     
 
     public function __construct($table , $bd = null, $user = 'root') {
-        $this->db = $bd??NAME_DB;
+        
+        $this->db = $bd;
 		
         // Carga los datos de la conexion
-        $this->users = include 'conexion.conf.php'; 
+        $this->conf = include 'conn.conf.php'; 
 
         $this->table = (string)$table;
-        $this->conn = new \mysqli('localhost', $user , $this->users[$user] ,  $this->db);
+
+        $this->conn = new \mysqli($this->conf['server'], $user , $this->conf[$user] ,  $this->db);
         if ($this->conn->connect_error) {
             die('Error de Conexión (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
         }
