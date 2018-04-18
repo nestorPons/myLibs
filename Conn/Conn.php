@@ -1,32 +1,26 @@
 <?php namespace core ;
 class Conn{
 
-    public 
-        $names,
+    public
         $type = MYSQLI_ASSOC,
-        $multi_query = false, //Si esta activada se acumulan los querys en la variable sql
-        $sql = ''; 
+        $multi_query = false, //Si esta activada se acumulan los querys en la variable sql 
+        $table;
 
-    protected
-        $table;  
-
-    private 
-        $db , 
-        $log = false, 
-        $return = false,  
-        $logs = ['data','usuarios'], 
-        $error = false , 
-		$users,
-        $conf, 
+    private
+	$sql = "",
+        $db ,
+        $log = false,
+        $return = false,
+        $logs = ['data','usuarios'],
+        $error = false ,
+	$users,
+        $conf,
         $conn;
-    
 
-    public function __construct($table , $bd = null, $user = 'root') {
-        
+    public function __construct( $bd, $table,  $user = 'root') {
         $this->db = $bd;
-		
         // Carga los datos de la conexion
-        $this->conf = include 'conn.conf.php'; 
+        $this->conf = include 'conn.conf.php';
 
         $this->table = (string)$table;
 
@@ -43,7 +37,7 @@ class Conn{
      }
     protected function query(string $sql = null){
         $sql = $sql??$this->sql;
-        $this->sql = null;      
+        $this->sql = null;
         $result = $this->conn->query($sql);
         return $result;
      }
@@ -53,26 +47,23 @@ class Conn{
         return $query->fetch_all($this->type);
      }
     public function getById ( int $id , string $return = '*' ) {
-        //return $this->getBy(['id'=>$id]);
-        
         $this->sql = "SELECT $return FROM {$this->table} WHERE id = $id LIMIT 1;" ;
         $query = $this->query($this->sql);
-        return ($query) 
+        return ($query)
             ?$query->fetch_assoc()??false
-            :false; 
-          
+            :false;
      }
-    // retorna un array 
+    // retorna un array
     public function getBy ( array $args , string $return = '*' ) {
         //varios valores ponerlos en un array
-        $filters = ''; 
+        $filters = '';
         $i = 0;
 
         foreach($args as $column => $value){
             $filters .= ($i!=0) ? ' AND ' : '' ;
-            $i++; 
+            $i++;
             $value = $this->scape($value) ;
-            $filters .= (string)$column ." = '".(string)$value ."'";  
+            $filters .= (string)$column ." = '".(string)$value ."'";
         }
         $this->sql = "SELECT $return FROM {$this->table} WHERE $filters ;";
         $query = $this->query($this->sql);
